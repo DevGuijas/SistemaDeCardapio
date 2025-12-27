@@ -2,184 +2,72 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Administrativo - Rancho do Cupim</title>
+    <title>Painel - Rancho do Cupim</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Special+Elite&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --madeira: #3d2b1f;
-            --papel: #f4e4bc;
-            --detalhe: #8b0000;
-            --sucesso: #2d5a27;
-        }
-
-        body {
-            background-color: var(--madeira);
-            background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
-            font-family: 'Special Elite', cursive;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .admin-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background-color: var(--papel);
-            padding: 30px;
-            box-shadow: 0 0 40px rgba(0,0,0,0.7);
-            border: 8px double var(--madeira);
-        }
-
-        h1, h2 {
-            font-family: 'Playfair Display', serif;
-            color: var(--madeira);
-            text-align: center;
-        }
-
-        /* Estilo do Formulário de Cadastro */
-        .cadastro-box {
-            background: rgba(0,0,0,0.05);
-            padding: 20px;
-            border: 1px dashed var(--madeira);
-            margin-bottom: 40px;
-        }
-
-        .grid-form {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .full-width { grid-column: span 2; }
-
-        input, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #b5a47a;
-            font-family: 'Special Elite', cursive;
-            box-sizing: border-box;
-        }
-
-        .btn-add {
-            background-color: var(--sucesso);
-            color: white;
-            padding: 15px;
-            border: none;
-            width: 100%;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        /* Tabela de Itens */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th {
-            background-color: var(--madeira);
-            color: var(--papel);
-            padding: 10px;
-            text-align: left;
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid #d2b48c;
-        }
-
-        .img-thumb {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border: 1px solid var(--madeira);
-        }
-
-        .acoes {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-edit {
-            background-color: #d2b48c;
-            color: var(--madeira);
-            padding: 5px 10px;
-            text-decoration: none;
-            font-size: 0.8rem;
-            border: 1px solid var(--madeira);
-        }
-
-        .btn-del {
-            background-color: var(--detalhe);
-            color: white;
-            padding: 5px 10px;
-            border: none;
-            cursor: pointer;
-            font-family: 'Special Elite', cursive;
-        }
-
-        .link-cardapio {
-            display: block;
-            text-align: center;
-            margin-bottom: 20px;
-            color: var(--detalhe);
-            font-weight: bold;
-        }
+        :root { --madeira: #3d2b1f; --papel: #f4e4bc; --detalhe: #8b0000; --sucesso: #2d5a27; }
+        body { background-color: var(--madeira); background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png'); font-family: 'Special Elite', cursive; padding: 20px; }
+        .admin-container { max-width: 1000px; margin: 0 auto; background-color: var(--papel); padding: 30px; border: 8px double var(--madeira); }
+        .cadastro-box { background: rgba(0,0,0,0.05); padding: 20px; border: 1px dashed var(--madeira); margin-bottom: 40px; }
+        .grid-form { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .full-width { grid-column: span 3; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #b5a47a; font-family: 'Special Elite'; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: var(--madeira); color: var(--papel); padding: 10px; }
+        td { padding: 10px; border-bottom: 1px solid #d2b48c; }
+        .btn-status { background: none; border: 1px solid #ccc; cursor: pointer; padding: 5px; font-size: 0.7rem; }
+        .img-thumb { width: 50px; height: 50px; object-fit: cover; }
     </style>
 </head>
 <body>
-
     <div class="admin-container">
-        <a href="/" class="link-cardapio">← Ver Cardápio Público</a>
+        <div style="display: flex; justify-content: space-between;">
+            <a href="/">← Ver Cardápio</a>
+            <a href="/logout" style="color: var(--detalhe);">Sair</a>
+        </div>
         <h1>Painel do Rancho</h1>
 
         <div class="cadastro-box">
-            <h2>Cadastrar Novo Prato</h2>
             <form action="/admin/add" method="POST" enctype="multipart/form-data">
                 <div class="grid-form">
-                    <input type="text" name="titulo" placeholder="Título do Prato (ex: Cupim Assado)" required>
-                    <input type="number" name="preco" step="0.01" placeholder="Preço (ex: 89.90)" required>
-                    <textarea name="descricao" class="full-width" placeholder="Descrição dos ingredientes..." rows="2" required></textarea>
-                    <div class="full-width">
-                        <label>Foto do Prato:</label>
-                        <input type="file" name="foto" required>
-                    </div>
+                    <input type="text" name="titulo" placeholder="Nome do Prato" required>
+                    <input type="number" name="preco" step="0.01" placeholder="Preço" required>
+                    <select name="categoria" required>
+                        <option value="Carnes">Carnes</option>
+                        <option value="Acompanhamentos">Acompanhamentos</option>
+                        <option value="Bebidas">Bebidas</option>
+                    </select>
+                    <textarea name="descricao" class="full-width" placeholder="Descrição..." required></textarea>
+                    <input type="file" name="foto" class="full-width" required>
                 </div>
-                <button type="submit" class="btn-add">ADICIONAR AO CARDÁPIO</button>
+                <button type="submit" style="background: var(--sucesso); color: white; width: 100%; padding: 10px; margin-top: 10px; cursor: pointer;">CADASTRAR</button>
             </form>
         </div>
 
-        <h2>Itens Atuais</h2>
         <table>
-            <thead>
-                <tr>
-                    <th>Foto</th>
-                    <th>Título</th>
-                    <th>Preço</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Foto</th><th>Item</th><th>Categoria</th><th>Preço</th><th>Status</th><th>Ações</th></tr></thead>
             <tbody>
                 <% itens.forEach(item => { %>
                 <tr>
                     <td><img src="/uploads/<%= item.imagem %>" class="img-thumb"></td>
                     <td><%= item.titulo %></td>
+                    <td><%= item.categoria %></td>
                     <td>R$ <%= item.preco.toFixed(2) %></td>
                     <td>
-                        <div class="acoes">
-                            <a href="/admin/edit/<%= item._id %>" class="btn-edit">EDITAR</a>
-                            <form action="/admin/delete/<%= item._id %>?_method=DELETE" method="POST">
-                                <button class="btn-del">EXCLUIR</button>
-                            </form>
-                        </div>
+                        <form action="/admin/status/<%= item.id %>?_method=PUT" method="POST">
+                            <button class="btn-status"><%= item.disponivel ? '✅ Ativo' : '❌ Esgotado' %></button>
+                        </form>
+                    </td>
+                    <td>
+                        <a href="/admin/edit/<%= item.id %>">Editar</a> |
+                        <form action="/admin/delete/<%= item.id %>?_method=DELETE" method="POST" style="display:inline;">
+                            <button style="color: red; border:none; background:none; cursor:pointer;">Excluir</button>
+                        </form>
                     </td>
                 </tr>
                 <% }) %>
             </tbody>
         </table>
     </div>
-
 </body>
 </html>

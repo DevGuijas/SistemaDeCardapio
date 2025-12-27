@@ -2,107 +2,120 @@ const express = require('express');
 const path = require('path');
 const methodOverride = require('method-override');
 const multer = require('multer');
-const { Sequelize, DataTypes } = require('sequelize'); // Alterado para Sequelize
+const { Sequelize, DataTypes } = require('sequelize');
+const session = require('express-session');
 
 const app = express();
 
-// --- CONFIGURAÇÃO DO BANCO DE DADOS (SQLite Local) ---
+// --- CONFIGURAÇÃO DE SESSÃO ---
+app.use(session({
+    secret: 'rancho-secreto-123',
+    resave: false,
+    saveUninitialized: true
+}));
+
+// Middleware de proteção
+function verificarAutenticacao(req, res, next) {
+    if (req.session.autenticado) return next();
+    res.redirect('/login');
+}
+
+// --- BANCO DE DADOS ---
 const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: './database.sqlite', // Cria este arquivo na pasta do projeto
+    storage: './database.sqlite',
     logging: false
 });
 
-// --- MODELO DO ITEM (Definição para SQLite) ---
 const Item = sequelize.define('Item', {
     titulo: DataTypes.STRING,
     descricao: DataTypes.TEXT,
     preco: DataTypes.DOUBLE,
-    imagem: DataTypes.STRING
+    imagem: DataTypes.STRING,
+    categoria: DataTypes.STRING,
+    disponivel: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+    }
 });
 
-// Sincroniza o banco (Cria a tabela se não existir)
-sequelize.sync()
-    .then(() => console.log("Banco SQLite do Rancho conectado e pronto!"))
-    .catch(err => console.log("Erro ao iniciar SQLite:", err));
+sequelize.sync({ alter: true }).then(() => console.log("SQLite pronto!"));
 
 // --- CONFIGURAÇÕES ---
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 
-// --- CONFIGURAÇÃO DO MULTER (UPLOAD DE FOTOS) ---
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'public/uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
+    destination: (req, file, cb) => cb(null, 'public/uploads/'),
+    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const upload = multer({ storage });
 
-// --- ROTAS DO CARDÁPIO (PÚBLICO) ---
+// --- ROTAS DE LOGIN ---
+app.get('/login', (req, res) => res.render('login'));
+app.post('/login', (req, res) => {
+    const { senha } = req.body;
+    if (senha === 'admin123') {
+        req.session.autenticado = true;
+        res.redirect('/admin');
+    } else {
+        res.send('Senha incorreta!');
+    }
+});
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
+});
+
+// --- ROTAS PÚBLICAS ---
 app.get('/', async (req, res) => {
-    const itens = await Item.findAll(); // findAll substitui o find
+    const itens = await Item.findAll();
     res.render('index', { itens });
 });
 
-// --- ROTAS DO ADMIN ---
-// Listar itens no admin
-app.get('/admin', async (req, res) => {
+// --- ROTAS ADMIN (PROTEGIDAS) ---
+app.get('/admin', verificarAutenticacao, async (req, res) => {
     const itens = await Item.findAll();
     res.render('admin', { itens });
 });
 
-// Adicionar novo item
-app.post('/admin/add', upload.single('foto'), async (req, res) => {
-    const { titulo, descricao, preco } = req.body;
+app.post('/admin/add', verificarAutenticacao, upload.single('foto'), async (req, res) => {
+    const { titulo, descricao, preco, categoria } = req.body;
     await Item.create({
-        titulo,
-        descricao,
+        titulo, descricao, categoria,
         preco: parseFloat(preco),
         imagem: req.file ? req.file.filename : 'default.jpg'
     });
     res.redirect('/admin');
 });
 
-// Rota para abrir o formulário de edição
-app.get('/admin/edit/:id', async (req, res) => {
-    const item = await Item.findByPk(req.params.id); // findByPk busca pelo ID (Primary Key)
+// Rota rápida para alternar disponibilidade
+app.put('/admin/status/:id', verificarAutenticacao, async (req, res) => {
+    const item = await Item.findByPk(req.params.id);
+    await item.update({ disponivel: !item.disponivel });
+    res.redirect('/admin');
+});
+
+app.get('/admin/edit/:id', verificarAutenticacao, async (req, res) => {
+    const item = await Item.findByPk(req.params.id);
     res.render('edit', { item });
 });
 
-// Rota para processar a atualização (usando PUT)
-app.put('/admin/edit/:id', upload.single('foto'), async (req, res) => {
-    const { titulo, descricao, preco } = req.body;
+app.put('/admin/edit/:id', verificarAutenticacao, upload.single('foto'), async (req, res) => {
+    const { titulo, descricao, preco, categoria } = req.body;
     const item = await Item.findByPk(req.params.id);
-    
-    const updateData = { 
-        titulo, 
-        descricao, 
-        preco: parseFloat(preco) 
-    };
-    
-    if (req.file) {
-        updateData.imagem = req.file.filename;
-    }
-
+    let updateData = { titulo, descricao, preco: parseFloat(preco), categoria };
+    if (req.file) updateData.imagem = req.file.filename;
     await item.update(updateData);
     res.redirect('/admin');
 });
 
-// Deletar item
-app.delete('/admin/delete/:id', async (req, res) => {
+app.delete('/admin/delete/:id', verificarAutenticacao, async (req, res) => {
     const item = await Item.findByPk(req.params.id);
     await item.destroy();
     res.redirect('/admin');
 });
 
-// --- SERVIDOR ---
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Rancho do Cupim rodando em http://localhost:${PORT}`);
-});
+app.listen(3000, () => console.log(`Rodando em http://localhost:3000`));

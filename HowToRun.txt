@@ -10,3 +10,4 @@ npx nodemon app.js
 Precisa ter:
 npm install sequelize sqlite3
 npm install
+npm install express-session
