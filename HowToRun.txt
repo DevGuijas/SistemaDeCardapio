@@ -1,0 +1,12 @@
+Onde rodará localmente:
+http://localhost:3000
+
+Para editar o cardápio (ainda sem proteção de acesso):
+http://localhost:3000/admin
+
+Para rodar:
+npx nodemon app.js
+
+Precisa ter:
+npm install sequelize sqlite3
+npm install

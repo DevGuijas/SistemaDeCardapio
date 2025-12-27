@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rancho do Cupim - Cardápio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Special+Elite&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --madeira: #3d2b1f;
+            --papel: #f4e4bc;
+            --detalhe: #8b0000; /* Vermelho queimado */
+        }
+
+        body {
+            background-color: var(--madeira);
+            /* Aqui você pode depois colocar uma imagem de textura de madeira */
+            background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
+            font-family: 'Special Elite', cursive;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: var(--papel);
+            padding: 40px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            border: 15px solid transparent;
+            border-image: url('https://www.transparenttextures.com/patterns/wood-pattern.png') 30 round;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px double var(--madeira);
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+        }
+
+        header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin: 0;
+            color: var(--madeira);
+            text-transform: uppercase;
+        }
+
+        .item-cardapio {
+            display: flex;
+            margin-bottom: 30px;
+            align-items: center;
+            border-bottom: 1px dashed #b5a47a;
+            padding-bottom: 20px;
+        }
+
+        .item-foto {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 3px solid var(--madeira);
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .item-info {
+            flex: 1;
+            padding-left: 20px;
+        }
+
+        .item-titulo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin: 0;
+            color: var(--detalhe);
+        }
+
+        .item-descricao {
+            font-size: 0.9rem;
+            margin: 5px 0;
+            color: #555;
+            font-style: italic;
+        }
+
+        .item-preco {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2d5a27; /* Verde escuro para o preço */
+        }
+
+        .item-preco::before {
+            content: "R$ ";
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 0.8rem;
+            color: var(--madeira);
+        }
+
+        @media (max-width: 600px) {
+            .item-cardapio {
+                flex-direction: column;
+                text-align: center;
+            }
+            .item-info {
+                padding-left: 0;
+                padding-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Rancho do Cupim</h1>
+            <p>O sabor da tradição em cada corte</p>
+        </header>
+
+        <main>
+            <% if (itens.length > 0) { %>
+                <% itens.forEach(item => { %>
+                    <div class="item-cardapio">
+                        <img src="/uploads/<%= item.imagem %>" alt="<%= item.titulo %>" class="item-foto">
+                        <div class="item-info">
+                            <h2 class="item-titulo"><%= item.titulo %></h2>
+                            <p class="item-descricao"><%= item.descricao %></p>
+                            <span class="item-preco"><%= item.preco.toFixed(2).replace('.', ',') %></span>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p style="text-align: center;">O fogão está aquecendo... Em breve nosso cardápio estará disponível!</p>
+            <% } %>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Rancho do Cupim - Carne de qualidade e brasa quente.</p>
+        </footer>
+    </div>
+
+</body>
+</html>
